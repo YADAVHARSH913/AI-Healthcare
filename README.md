@@ -40,21 +40,24 @@ The goal is to reduce patient waiting times, prevent overcrowding, and make hosp
 ## 🚀 How to Setup Project
 
 ### 1️⃣ Clone the Repository
-```bash
+``bash
 git clone https://github.com/YADAVHARSH913/AI-Healthcare.git
 cd AI-Healthcare
-2️⃣ Frontend Setup
-bash
+
+###2️⃣ Frontend Setup
+``bash
 Copy code
 cd frontend
 npm install
 npm run dev
-3️⃣ Backend Setup
-bash
+
+###3️⃣ Backend Setup
+``bash
 Copy code
 cd ../backend
 npm install
 npm start
+
 👨‍💻 Contribution Workflow (For Team Members)
 Create a new branch before starting work:
 
@@ -65,13 +68,13 @@ Do your changes → test karo.
 
 Stage and commit your changes:
 
-bash
+``bash
 Copy code
 git add .
 git commit -m "Added new feature"
 Push your branch:
 
-bash
+``bash
 Copy code
 git push origin feature/your-feature-name
 Create a Pull Request (PR):
@@ -85,7 +88,6 @@ Team will review & merge into main
 👥 Team Members (Collaborators)
 Harsh Yadav (Owner)
 
-[Add your friends’ names here after they accept invite]
 
 ⚠️ Notes for Collaborators
 Do NOT push directly to main.
@@ -98,15 +100,12 @@ Run npm install after pulling new changes.
 
 
 👨‍💻 Team Members
-Member 1 – Backend (Authentication & APIs)
+HARSH YADAV
+DAMINI RATHORE 
+BHAVYA BHATNAGAR
+KHUSHI RAGHAV
 
-Member 2 – Backend (Database & Queue Logic)
-
-Member 3 – Frontend (Patient Portal)
-
-Member 4 – Frontend (Admin Dashboard)
-
-📸 Screenshots (to be added)
+📸 Screenshots 
 Patient booking page
 
 Admin dashboard
