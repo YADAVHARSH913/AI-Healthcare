@@ -36,36 +36,67 @@ The goal is to reduce patient waiting times, prevent overcrowding, and make hosp
 
 ---
 
-## ⚙️ Installation & Setup
 
-### 1. Clone the Repository
-``bash
+## 🚀 How to Setup Project
+
+### 1️⃣ Clone the Repository
+```bash
 git clone https://github.com/YADAVHARSH913/AI-Healthcare.git
 cd AI-Healthcare
+2️⃣ Frontend Setup
+bash
+Copy code
+cd frontend
+npm install
+npm run dev
+3️⃣ Backend Setup
+bash
+Copy code
+cd ../backend
+npm install
+npm start
+👨‍💻 Contribution Workflow (For Team Members)
+Create a new branch before starting work:
 
-2. Setup Backend
-``bash
- Copy
- Edit
- cd backend
- npm install
- npm run dev
-3. Setup Frontend
- ``bash
-  Copy
-  Edit
-  cd frontend
-  npm install
-  npm start
-4. Environment Variables
-Create a .env file in the backend folder with:
+bash
+Copy code
+git checkout -b feature/your-feature-name
+Do your changes → test karo.
 
- ini
-Copy
-Edit
-MONGO_URI=your_mongodb_connection
-JWT_SECRET=your_secret_key
-PORT=5000
+Stage and commit your changes:
+
+bash
+Copy code
+git add .
+git commit -m "Added new feature"
+Push your branch:
+
+bash
+Copy code
+git push origin feature/your-feature-name
+Create a Pull Request (PR):
+
+Go to GitHub repo
+
+Click Compare & pull request
+
+Team will review & merge into main
+
+👥 Team Members (Collaborators)
+Harsh Yadav (Owner)
+
+[Add your friends’ names here after they accept invite]
+
+⚠️ Notes for Collaborators
+Do NOT push directly to main.
+
+Always create a new branch.
+
+Resolve conflicts properly before merging.
+
+Run npm install after pulling new changes.
+
+
 👨‍💻 Team Members
 Member 1 – Backend (Authentication & APIs)
 
