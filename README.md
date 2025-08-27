@@ -85,8 +85,8 @@ Click Compare & pull request
 
 Team will review & merge into main
 
-👥 Team Members (Collaborators) 
--Harsh Yadav (Owner)
+##👥 Team Members (Collaborators) 
+**Harsh Yadav (Owner)
 
 
 ⚠️ Notes for Collaborators
@@ -99,12 +99,13 @@ Resolve conflicts properly before merging.
 Run npm install after pulling new changes.
 
 
-👨‍💻 Team Members
-1.HARSH YADAV
-2.DAMINI RATHORE 
-3.BHAVYA BHATNAGAR
-4.KHUSHI RAGHAV
-
+- 👨‍💻 **Team Members**
+  - DAMINI RATHORE  
+  - BHAVYA BHATNAGAR
+  - KHUSHI RAGHAV
+  - HARSH YADAV
+ 
+    
 📸 Screenshots 
 Patient booking page
 
