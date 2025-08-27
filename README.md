@@ -85,8 +85,8 @@ Click Compare & pull request
 
 Team will review & merge into main
 
-##👥 Team Members (Collaborators) 
-**Harsh Yadav (Owner)
+👥 Team Members (Collaborators) 
+------->>>>>>Harsh Yadav (Owner)
 
 
 ⚠️ Notes for Collaborators
