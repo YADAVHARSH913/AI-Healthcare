@@ -36,7 +36,7 @@ The goal is to reduce patient waiting times, prevent overcrowding, and make hosp
 
 ---
 
-
+```
 ## 🚀 How to Setup Project
 
 ### 1️⃣ Clone the Repository
@@ -52,7 +52,7 @@ npm install
 npm run dev
 
 ###3️⃣ Backend Setup
-``bash
+```bash
 Copy code
 cd ../backend
 npm install
@@ -74,11 +74,11 @@ git add .
 git commit -m "Added new feature"
 Push your branch:
 
-``bash
+```bash
 Copy code
 git push origin feature/your-feature-name
 Create a Pull Request (PR):
-
+```
 Go to GitHub repo
 
 Click Compare & pull request
