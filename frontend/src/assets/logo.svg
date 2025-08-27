@@ -1,0 +1,30 @@
+<svg width="200" height="200" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="helixGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#00f2fe;" />
+            <stop offset="100%" style="stop-color:#4facfe;" />
+        </linearGradient>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+    <path d="M50 5 C 20 5, 10 25, 10 50 C 10 75, 20 95, 50 95 C 80 95, 90 75, 90 50 C 90 25, 80 5, 50 5 Z" fill="#30363d" opacity="0.3"/>
+    <g style="filter:url(#glow);" opacity="0.9">
+        <path d="M25 50 C 35 30, 40 30, 45 50 S 55 70, 60 50 S 65 30, 75 50" stroke="url(#helixGradient)" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M25 50 C 35 70, 40 70, 45 50 S 55 30, 60 50 S 65 70, 75 50" stroke="url(#helixGradient)" stroke-width="4" fill="none" stroke-linecap="round"/>
+    </g>
+    <circle cx="25" cy="50" r="3" fill="#fff"/>
+    <circle cx="45" cy="50" r="3" fill="#fff"/>
+    <circle cx="60" cy="50" r="3" fill="#fff"/>
+    <circle cx="75" cy="50" r="3" fill="#fff"/>
+    <circle cx="35" cy="38" r="1.5" fill="#4facfe"/>
+    <circle cx="35" cy="62" r="1.5" fill="#4facfe"/>
+    <circle cx="52.5" cy="38" r="1.5" fill="#00f2fe"/>
+    <circle cx="52.5" cy="62" r="1.5" fill="#00f2fe"/>
+    <circle cx="67.5" cy="38" r="1.5" fill="#4facfe"/>
+    <circle cx="67.5" cy="62" r="1.5" fill="#4facfe"/>
+</svg>
