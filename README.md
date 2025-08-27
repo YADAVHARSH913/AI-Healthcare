@@ -99,11 +99,11 @@ Resolve conflicts properly before merging.
 Run npm install after pulling new changes.
 
 
--👨‍💻 Team Members
--HARSH YADAV
--DAMINI RATHORE 
--BHAVYA BHATNAGAR
--KHUSHI RAGHAV
+👨‍💻 Team Members
+1.HARSH YADAV
+2.DAMINI RATHORE 
+3.BHAVYA BHATNAGAR
+4.KHUSHI RAGHAV
 
 📸 Screenshots 
 Patient booking page
