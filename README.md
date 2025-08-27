@@ -40,12 +40,12 @@ The goal is to reduce patient waiting times, prevent overcrowding, and make hosp
 ## 🚀 How to Setup Project
 
 ### 1️⃣ Clone the Repository
-``bash
+```bash
 git clone https://github.com/YADAVHARSH913/AI-Healthcare.git
 cd AI-Healthcare
 
 ###2️⃣ Frontend Setup
-``bash
+```bash
 Copy code
 cd frontend
 npm install
@@ -61,14 +61,14 @@ npm start
 👨‍💻 Contribution Workflow (For Team Members)
 Create a new branch before starting work:
 
-bash
+```bash
 Copy code
 git checkout -b feature/your-feature-name
 Do your changes → test karo.
 
 Stage and commit your changes:
 
-``bash
+```bash
 Copy code
 git add .
 git commit -m "Added new feature"
