@@ -5,10 +5,38 @@ import User from "../models/User.js";
 
 const router = express.Router();
 
-// ✅ Register
+
+// ================= ADMIN LOGIN =================
+router.post("/admin-login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const admin = await User.findOne({ email, role: "admin" });
+
+    if (!admin) return res.status(404).json({ msg: "Admin not found" });
+
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
+
+    const token = jwt.sign(
+      { id: admin._id, role: admin.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.json({
+      token,
+      user: { id: admin._id, name: admin.name, role: admin.role },
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ================= REGISTER (patient by default) =================
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;  // ✅ role bhi aa raha hai
+    const { name, email, password, role } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -21,14 +49,17 @@ router.post("/register", async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role: role || "patient"  // ✅ agar nahi diya to default patient
+      role: role || "patient",  // ✅ default patient
+      firstLogin: true          // ✅ first time login required
     });
 
     await user.save();
 
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
     res.json({
       token,
@@ -36,7 +67,8 @@ router.post("/register", async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,   // ✅ frontend ko role milega
+        role: user.role,
+        firstLogin: user.firstLogin,
       },
     });
   } catch (err) {
@@ -45,7 +77,7 @@ router.post("/register", async (req, res) => {
 });
 
 
-// ✅ Login
+// ================= GENERIC LOGIN (patients + doctors) =================
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -69,15 +101,87 @@ router.post("/login", async (req, res) => {
     res.json({
       message: "Login successful",
       token,
-      user: { 
-        id: user._id, 
-        name: user.name,   // ✅ yeh line add karo
-        email: user.email, 
-        role: user.role 
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        firstLogin: user.firstLogin,        // ✅ doctor/patient dono ke liye
+        specialization: user.specialization,
+        experience: user.experience,
+        hospital: user.hospital,
       },
     });
   } catch (err) {
     res.status(500).json({ message: "Server error: " + err.message });
+  }
+});
+
+
+// ================= DOCTOR ONLY LOGIN (optional, same as /login but stricter) =================
+router.post("/doctor-login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const doctor = await User.findOne({ email, role: "doctor" });
+    if (!doctor) return res.status(400).json({ msg: "Doctor not found" });
+
+    const isMatch = await bcrypt.compare(password, doctor.password);
+    if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
+
+    const token = jwt.sign(
+      { id: doctor._id, role: doctor.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.json({
+      token,
+      doctor: {
+        id: doctor._id,
+        name: doctor.name,
+        email: doctor.email,
+        role: doctor.role,
+        firstLogin: doctor.firstLogin,   // ✅ setup flag
+        specialization: doctor.specialization,
+        experience: doctor.experience,
+        hospital: doctor.hospital,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ✅ FORGOT PASSWORD
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: "Please enter your email." });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User with this email does not exist." });
+    }
+
+    // Naya password '123456' set kar aur hash kar
+    const newPassword = "123456";
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // User ka password update kar aur firstLogin = true set kar
+    user.password = hashedPassword;
+    user.firstLogin = true; // Taaki agle login par password change karna pade
+    await user.save();
+
+    res.json({ 
+      message: "Password has been reset to '123456'. Please login to set a new password." 
+    });
+
+  } catch (err) {
+    console.error("Forgot Password Error:", err);
+    res.status(500).json({ message: "Server error, please try again later." });
   }
 });
 export default router;

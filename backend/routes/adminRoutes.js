@@ -1,12 +1,15 @@
 import express from "express";
 import User from "../models/User.js";
 import Bed from "../models/Bed.js";
+import Appointment from "../models/Appointment.js";
+import Broadcast from "../models/Broadcast.js";
 import Medicine from "../models/Medicine.js";
 import authMiddleware from "../middleware/authMiddleware.js";
+import bcrypt from "bcryptjs";
 
 const router = express.Router();
 
-// Middleware: only admin access
+// ✅ Middleware: only admin access
 const adminOnly = (req, res, next) => {
   if (req.user.role !== "admin") {
     return res.status(403).json({ msg: "Access denied. Admins only." });
@@ -14,29 +17,116 @@ const adminOnly = (req, res, next) => {
   next();
 };
 
-// ✅ Add a doctor
-router.post("/doctor", authMiddleware, adminOnly, async (req, res) => {
+// ================= USER MANAGEMENT (Doctors & Patients) =================
+
+// ✅ Add a doctor (Admin only)
+router.post("/manage/doctor", authMiddleware, adminOnly, async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-    const doctor = new User({ name, email, password, role: "doctor" });
+    const { name, email, password, specialization, experience, hospital } = req.body;
+    const existing = await User.findOne({ email });
+    if (existing) return res.status(400).json({ msg: "User already exists with this email" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const doctor = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role: "doctor",
+      specialization,
+      experience,
+      hospital,
+      firstLogin: true
+    });
+
     await doctor.save();
-    res.json({ msg: "Doctor added", doctor });
+    res.json({ msg: "Doctor added successfully", doctor });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ Remove a doctor
-router.delete("/doctor/:id", authMiddleware, adminOnly, async (req, res) => {
+// ✅ Fetch all doctors (for admin panel)
+router.get("/manage/doctors", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const doctors = await User.find({ role: "doctor" }).select("-password");
+    res.json(doctors);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ NAYA ROUTE: Fetch all patients (for admin panel)
+router.get("/manage/patients", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const patients = await User.find({ role: "patient" }).select("-password");
+    res.json(patients);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ UPDATED ROUTE: Remove any user (doctor or patient)
+router.delete("/manage/user/:id", authMiddleware, adminOnly, async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
-    res.json({ msg: "Doctor removed" });
+    res.json({ msg: "User removed successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ Manage Beds
+
+// ================= APPOINTMENT MANAGEMENT  =================
+
+// ✅  Get all appointments for all users
+router.get("/manage/appointments", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const appointments = await Appointment.find({})
+      .populate("doctor", "name")
+      .populate("patient", "name")
+      .sort({ date: -1 });
+    res.json(appointments);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ Admin can cancel any appointment
+router.put("/manage/appointment/:id/cancel", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const appointment = await Appointment.findByIdAndUpdate(
+      req.params.id,
+      { status: "Cancelled" },
+      { new: true }
+    );
+    if (!appointment) return res.status(404).json({ msg: "Appointment not found." });
+    res.json({ msg: "Appointment cancelled by admin.", appointment });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ================= BROADCAST MANAGEMENT =================
+
+// ✅ Create a new broadcast message
+router.post("/broadcast", authMiddleware, adminOnly, async (req, res) => {
+    try {
+        
+        await Broadcast.updateMany({ isActive: true }, { isActive: false });
+
+        const { message, audience } = req.body;
+        const newBroadcast = new Broadcast({ message, audience, isActive: true });
+        await newBroadcast.save();
+        res.status(201).json({ msg: "Broadcast message sent!", broadcast: newBroadcast });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+// ================= BEDS & MEDICINE MANAGEMENT =================
+
 router.post("/beds", authMiddleware, adminOnly, async (req, res) => {
   try {
     const { ward, total, available } = req.body;
@@ -57,7 +147,6 @@ router.put("/beds/:id", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
-// ✅ Manage Medicines
 router.post("/medicine", authMiddleware, adminOnly, async (req, res) => {
   try {
     const { name, stock } = req.body;
