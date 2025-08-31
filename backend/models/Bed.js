@@ -1,11 +1,19 @@
 import mongoose from "mongoose";
 
 const bedSchema = new mongoose.Schema({
-  hospitalName: { type: String, required: true },
-  icuBeds: { type: Number, default: 0 },
-  generalBeds: { type: Number, default: 0 },
-  totalBeds: { type: Number, default: 0 },
-  updatedAt: { type: Date, default: Date.now },
-});
+  ward: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  total: {
+    type: Number,
+    required: true
+  },
+  available: {
+    type: Number,
+    required: true
+  },
+}, { timestamps: true }); 
 
 export default mongoose.model("Bed", bedSchema);

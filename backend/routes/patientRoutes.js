@@ -1,18 +1,17 @@
 import express from "express";
 import Appointment from "../models/Appointment.js";
+import BedRequest from "../models/BedRequest.js";
 import User from "../models/User.js";
-import bcrypt from "bcryptjs";
 import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 /**
- * ✅ Patient first time setup (password + details + problems)
+ * ✅ Patient first time setup (details + problems)
  */
 router.put("/setup", authMiddleware, async (req, res) => {
   try {
-    const { password, age, gender, problem, symptoms } = req.body;
-
+    const { age, gender, bloodGroup, previousProblems } = req.body;
     const patient = await User.findById(req.user.id);
 
     if (!patient || patient.role !== "patient") {
@@ -23,17 +22,12 @@ router.put("/setup", authMiddleware, async (req, res) => {
       return res.status(400).json({ msg: "Setup already completed" });
     }
 
-    // ✅ Update password if provided
-    if (password) {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      patient.password = hashedPassword;
-    }
-
     // ✅ Save extra details
     patient.age = age;
     patient.gender = gender;
-    patient.problem = problem;
-    patient.symptoms = symptoms;
+    patient.bloodGroup = bloodGroup;
+    patient.previousProblems = previousProblems;
+
 
     // ✅ Mark first login complete
     patient.firstLogin = false;
@@ -79,4 +73,15 @@ router.get("/appointments", authMiddleware, async (req, res) => {
   }
 });
 
+
+// ✅  Patient can see their bed request status
+router.get("/my-bed-request", authMiddleware, async (req, res) => {
+  try {
+    const request = await BedRequest.findOne({ patient: req.user.id })
+        .sort({ createdAt: -1 }); // Sabse naya waala
+    res.json(request);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 export default router;

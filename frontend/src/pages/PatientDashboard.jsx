@@ -2,18 +2,22 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { getTimeGreeting } from "../utils/greetings";
-import BroadcastBanner from '../components/BroadcastBanner';
+import BroadcastBanner from '../components/BroadcastBanner'; // Broadcast banner import kiya
 
 // --- Icon Components ---
 const CalendarIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 inline text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>;
 const ClockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-4 mr-2 inline text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
 const UserCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
 const PlusCircleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+const NoAppointmentIcon = () => <svg className="mx-auto mb-4 h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13H9m12-4l-1.5 1.5M9 13h.01" /></svg>;
+
 
 function PatientDashboard() {
+  // --- STATE MANAGEMENT ---
   const [user, setUser] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [doctors, setDoctors] = useState([]);
+  const [bedRequest, setBedRequest] = useState(null); // State for bed request status
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -22,6 +26,7 @@ function PatientDashboard() {
 
   const token = localStorage.getItem("token");
 
+  // --- DATA FETCHING ---
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     if (storedUser) setUser(storedUser);
@@ -29,12 +34,14 @@ function PatientDashboard() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [appointmentsRes, doctorsRes] = await Promise.all([
+        const [appointmentsRes, doctorsRes, bedRequestRes] = await Promise.all([
           axios.get("http://localhost:5000/api/patient/appointments", { headers: { Authorization: `Bearer ${token}` } }),
           axios.get("http://localhost:5000/api/doctors", { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get("http://localhost:5000/api/patient/my-bed-request", { headers: { Authorization: `Bearer ${token}` } })
         ]);
         setAppointments(appointmentsRes.data);
         setDoctors(doctorsRes.data.filter(doc => doc.status === 'Available'));
+        setBedRequest(bedRequestRes.data);
       } catch (err) {
         toast.error("Could not load your data.");
       } finally {
@@ -44,6 +51,7 @@ function PatientDashboard() {
     if (token) fetchData();
   }, [token]);
 
+  // --- HANDLER FUNCTIONS ---
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setFormData(prev => ({ ...prev, [name]: files ? files[0] : value }));
@@ -81,8 +89,7 @@ function PatientDashboard() {
     };
     return statuses[status] || 'bg-gray-100 text-gray-800';
   };
-
-  // ✅ Time ko format karne ka function
+  
   const formatTime = (timeString) => {
     if (!timeString) return "N/A";
     const [hour, minute] = timeString.split(':');
@@ -92,14 +99,13 @@ function PatientDashboard() {
   };
 
   return (
+    // Added pt-24 to add padding from the top, below the fixed navbar
     <div className="min-h-screen bg-gray-50 pt-24">
       <main className="container mx-auto p-4 sm:p-6 lg:p-8">
         
         <BroadcastBanner />
         
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            {getTimeGreeting()}, {user?.name || "Patient"}! 👋
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">{getTimeGreeting()}, {user?.name || "Patient"}! 👋</h1>
         <p className="text-gray-500 mb-8">Welcome to your health dashboard.</p>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -117,7 +123,7 @@ function PatientDashboard() {
             
             {loading ? <p>Loading...</p> : appointments.length === 0 ? (
               <div className="text-center py-16 bg-white rounded-lg shadow-md border border-gray-200">
-                <img src="https://placehold.co/128x128/e0f2fe/0c4a6e.png?text=🗓️" alt="No Appointments" className="mx-auto mb-4" />
+                <NoAppointmentIcon />
                 <h3 className="text-xl font-semibold text-gray-700">No appointments yet</h3>
                 <p className="text-gray-500 mb-4">Let's book your first one!</p>
                 <button onClick={() => setIsModalOpen(true)} className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">Book Appointment</button>
@@ -136,7 +142,6 @@ function PatientDashboard() {
                     <div className="border-t my-3 border-gray-200"></div>
                     <div className="flex items-center text-sm text-gray-700 mb-3">
                       <CalendarIcon /> {new Date(appt.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
-                      {/* ✅ Yahaan par naya function use kiya hai */}
                       <ClockIcon /> {formatTime(appt.time)}
                     </div>
                     <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-md"><span className="font-semibold text-gray-800">Symptoms:</span> {appt.symptoms}</p>
@@ -159,6 +164,35 @@ function PatientDashboard() {
                     </div>
                 )}
             </div>
+
+            {/* --- Bed Request Status Section --- */}
+            {bedRequest && (
+                <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                    <h2 className="text-2xl font-semibold text-gray-700 mb-4">Bed Request Status</h2>
+                    <div className="space-y-2">
+                        <p><strong>Ward Requested:</strong> {bedRequest.ward}</p>
+                        <p><strong>Status:</strong> 
+                            <span className={`font-bold ml-2 ${
+                                bedRequest.status === 'Accepted' ? 'text-green-600' :
+                                bedRequest.status === 'Rejected' ? 'text-red-600' : 'text-yellow-600'
+                            }`}>
+                                {bedRequest.status}
+                            </span>
+                        </p>
+                        {bedRequest.status === 'Rejected' && bedRequest.rejectionReason && (
+                            <p className="text-sm text-red-700 bg-red-100 p-2 rounded-md">
+                                <strong>Reason:</strong> {bedRequest.rejectionReason}
+                            </p>
+                        )}
+                         {bedRequest.status === 'Accepted' && (
+                            <p className="text-sm text-green-700 bg-green-100 p-2 rounded-md">
+                                Please contact the administration for admission formalities.
+                            </p>
+                        )}
+                    </div>
+                </div>
+            )}
+            
             <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
                 <h2 className="text-2xl font-semibold text-gray-700 mb-4">Quick Links</h2>
                 <ul className="space-y-3">
@@ -171,6 +205,7 @@ function PatientDashboard() {
         </div>
       </main>
 
+      {/* Booking Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-lg">

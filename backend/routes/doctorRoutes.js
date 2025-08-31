@@ -1,7 +1,8 @@
 import express from "express";
-import multer from "multer"; // ✅ Multer import kiya
-import path from "path";   // ✅ Path import kiya
+import multer from "multer";
+import path from "path";
 import Appointment from "../models/Appointment.js";
+import BedRequest from "../models/BedRequest.js";
 import User from "../models/User.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import bcrypt from "bcryptjs";
@@ -11,17 +12,17 @@ const router = express.Router();
 // --- Multer Storage Configuration ---
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // Files 'uploads' folder mein save hongi
+    cb(null, 'uploads/'); // Files 'uploads' folder to be saved
   },
   filename: function (req, file, cb) {
-    // Unique filename banao taaki files overwrite na hon
+    // Unique filename to be generated
     cb(null, `doctor-${req.user.id}-${Date.now()}${path.extname(file.originalname)}`);
   }
 });
 
 const upload = multer({ storage: storage });
 
-// ✅ Doctor first time setup - ab photo bhi lega
+/* ✅ Doctor first time setup route starts */
 router.put("/setup", authMiddleware, upload.single('profilePicture'), async (req, res) => {
   try {
     const { password, specialization, experience, hospital } = req.body;
@@ -36,15 +37,15 @@ router.put("/setup", authMiddleware, upload.single('profilePicture'), async (req
 
     // Update details
     if (password) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        doctor.password = hashedPassword;
+      const hashedPassword = await bcrypt.hash(password, 10);
+      doctor.password = hashedPassword;
     }
     doctor.specialization = specialization;
     doctor.experience = experience;
     doctor.hospital = hospital;
     doctor.firstLogin = false;
 
-    // ✅ Agar file upload hui hai, toh uska path save kar
+    // If fiele uploaded, update profilePicture path
     if (req.file) {
       doctor.profilePicture = req.file.path;
     }
@@ -56,12 +57,10 @@ router.put("/setup", authMiddleware, upload.single('profilePicture'), async (req
     res.status(500).json({ error: err.message });
   }
 });
+/* Doctor first time setup route ends */
 
-// --- Baaki ke routes waise hi rahenge ---
 
-/**
- * ✅ Doctor can see their patients' appointments
- */
+/*✅ Doctor can see their patients appointments starts*/
 router.get("/appointments", authMiddleware, async (req, res) => {
   try {
     if (req.user.role !== "doctor") {
@@ -78,11 +77,11 @@ router.get("/appointments", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Server error while fetching appointments" });
   }
 });
+/* Doctor can see their patients appointments ends*/
 
 
-/**
- * ✅ Doctor to update their own status
- */
+
+/* ✅ Doctor to update their own status starts*/
 router.put("/status", authMiddleware, async (req, res) => {
   try {
     if (req.user.role !== "doctor") {
@@ -104,10 +103,11 @@ router.put("/status", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Server error while updating status" });
   }
 });
+/* Doctor to update their own status ends*/
 
-/**
- * ✅ Doctor updates notes, prescription, status for an appointment
- */
+
+
+/* ✅ Doctor updates notes, prescription, status for an appointment starts */
 router.put("/appointments/:id", authMiddleware, async (req, res) => {
   try {
     if (req.user.role !== "doctor") {
@@ -116,9 +116,9 @@ router.put("/appointments/:id", authMiddleware, async (req, res) => {
 
     const { notes, prescription, status } = req.body;
 
-    const appointment = await Appointment.findOne({ 
-        _id: req.params.id, 
-        doctor: req.user.id 
+    const appointment = await Appointment.findOne({
+      _id: req.params.id,
+      doctor: req.user.id
     });
 
     if (!appointment) {
@@ -137,15 +137,52 @@ router.put("/appointments/:id", authMiddleware, async (req, res) => {
     if (status) appointment.status = status;
 
     const updatedAppointment = await appointment.save();
-    
+
     await updatedAppointment.populate("patient", "name email");
 
     res.json({ msg: "✅ Appointment updated successfully", appointment: updatedAppointment });
-    
+
   } catch (err) {
     console.error("Error updating appointment:", err);
     res.status(500).json({ error: "Server error while updating appointment" });
   }
 });
+/* Doctor updates notes, prescription, status for an appointment ends */
+
+
+
+/* ✅ Bed Request related routes starts */
+// Doctor requests a bed for a patient
+router.post("/request-bed", authMiddleware, async (req, res) => {
+  try {
+    const { patientId, ward } = req.body;
+    const doctorId = req.user.id;
+
+    const newRequest = new BedRequest({
+      patient: patientId,
+      doctor: doctorId,
+      ward: ward
+    });
+    await newRequest.save();
+
+    res.status(201).json({ msg: "Bed request sent successfully.", request: newRequest });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Doctor can see their sent bed requests 
+router.get("/my-bed-requests", authMiddleware, async (req, res) => {
+  try {
+    const requests = await BedRequest.find({ doctor: req.user.id })
+      .populate("patient", "name");
+    res.json(requests);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+/* Bed Request related routes ends */
+
+
 
 export default router;

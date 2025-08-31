@@ -1,8 +1,8 @@
 export const greetings = [
-  "Hello Doctor! 👨‍⚕️ | नमस्ते डॉक्टर!",
-  "Welcome Back! 🎉 | आपका स्वागत है!",
-  "Have a great day! 🌸 | आपका दिन शुभ हो!",
-  "Ready to heal lives ❤️ | जीवन को स्वस्थ करने के लिए तैयार!",
+  "Hello Doctor! 👨‍⚕️ ",
+  "Welcome Back! 🎉",
+  "Have a great day! 🌸",
+  "Ready to heal lives ❤️",
   "Stay positive ✨",
   "Aapka din mangalmay ho! 🌸",
   "Patients ke liye aap ek hero hain! 🦸‍♂️",
@@ -10,6 +10,21 @@ export const greetings = [
   "Keep spreading smiles 😃",
   "Aapki mehnat se log swasth bante hain 🙏",
   "Stay positive, heal better ✨",
+  "Let's make a difference today! 🩺",
+  "Your dedication is inspiring! ✨",
+  "Ready to be a lifesaver? 💪",
+  "Time to work your magic, Doctor! 🪄",
+  "Another day, another opportunity to heal. 🙏",
+  "Healing hands, caring heart. ❤️",
+  "Coffee, stethoscope, and a goal to save lives. ☕",
+  "Duniya ko aap jaise doctors ki zaroorat hai. 🌍",
+  "Healing is an art. You are the artist. 🎨",
+  "Your expertise saves lives every day. Keep it up! 💪",
+  "Making the world a healthier place, one patient at a time. 🌍",
+  "Stay sharp, stay compassionate. 🧠❤️",
+  "Aaj ka din aapke naam! Let's do this. 🚀",
+  "You've got this, Doc! ✨",
+  "Bringing hope and health to many. 🙏"
 ];
 
 export function getTimeGreeting() {

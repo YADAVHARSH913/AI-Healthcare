@@ -1,6 +1,7 @@
 import express from "express";
 import User from "../models/User.js";
 import Broadcast from "../models/Broadcast.js";
+import Bed from "../models/Bed.js";
 
 const router = express.Router();
 
@@ -23,6 +24,17 @@ router.get("/broadcast/latest", async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: "Server error" });
     }
+});
+
+
+// ✅ Get all bed availability status
+router.get("/beds", async (req, res) => {
+  try {
+    const beds = await Bed.find({});
+    res.json(beds);
+  } catch (err) {
+    res.status(500).json({ message: "Server Error" });
+  }
 });
 
 export default router;

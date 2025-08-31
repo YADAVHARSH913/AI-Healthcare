@@ -5,11 +5,11 @@ import { useNavigate } from "react-router-dom";
 
 const PatientSetup = () => {
   const [formData, setFormData] = useState({
-    password: "",
     age: "",
     gender: "",
-    problem: "",
-    symptoms: "",
+    bloodGroup: "",
+    previousProblems: "",
+  
   });
 
   const [loading, setLoading] = useState(false);
@@ -50,17 +50,7 @@ const PatientSetup = () => {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* ✅ New password (first login) */}
-          <input
-            type="password"
-            name="password"
-            placeholder="New Password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-            required
-          />
-
+         
           <input
             type="number"
             name="age"
@@ -84,19 +74,28 @@ const PatientSetup = () => {
             <option value="other">Other</option>
           </select>
 
-          <textarea
-            name="problem"
-            placeholder="What is your main problem?"
-            value={formData.problem}
+          <select
+            name="bloodGroup"
+            value={formData.bloodGroup}
             onChange={handleChange}
             className="w-full px-3 py-2 border rounded"
             required
-          />
+          >
+            <option value="">Select BloodGroup</option>
+            <option value="male">A+</option>
+            <option value="female">B+</option>
+            <option value="other">AB+</option>
+            <option value="other">A-</option>
+            <option value="other">B-</option>
+            <option value="other">AB-</option>
+            <option value="other">O-</option>
+            <option value="other">O+</option>
+          </select>
 
           <textarea
-            name="symptoms"
-            placeholder="Describe your symptoms..."
-            value={formData.symptoms}
+            name="previousproblems"
+            placeholder="Is There Any Major Problem Previously?"
+            value={formData.previousproblems}
             onChange={handleChange}
             className="w-full px-3 py-2 border rounded"
             required
