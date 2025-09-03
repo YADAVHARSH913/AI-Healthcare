@@ -29,26 +29,31 @@ const DoctorSetup = () => {
 
     const data = new FormData();
     // Saari details FormData mein daal
-    data.append('password', formData.password);
-    data.append('specialization', formData.specialization);
-    data.append('experience', formData.experience);
-    data.append('hospital', formData.hospital);
-    
+    data.append("password", formData.password);
+    data.append("specialization", formData.specialization);
+    data.append("experience", formData.experience);
+    data.append("hospital", formData.hospital);
+
     if (profilePicture) {
-      data.append('profilePicture', profilePicture); // ✅ Photo bhi daal
+      data.append("profilePicture", profilePicture); // ✅ Photo bhi daal
     }
 
     try {
-      await axios.put(
+      // ✅ Response ko res variable mein store kar
+      const res = await axios.put(
         "http://localhost:5000/api/doctor/setup",
         data, // ✅ FormData object bhej
         {
-          headers: { 
+          headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data" // ✅ Ye header zaroori hai
+            "Content-Type": "multipart/form-data", // ✅ Ye header zaroori hai
           },
         }
       );
+
+      // ✅ Doctor object localStorage me save karo
+      localStorage.setItem("user", JSON.stringify(res.data.doctor));
+      window.dispatchEvent(new Event("storage"));
 
       toast.success("✅ Setup completed successfully!");
       navigate("/doctor/dashboard");
@@ -56,7 +61,7 @@ const DoctorSetup = () => {
       const errorMsg = err.response?.data?.msg || "❌ Something went wrong";
       toast.error(errorMsg);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -67,10 +72,11 @@ const DoctorSetup = () => {
           Doctor First-Time Setup
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          
           {/* ✅ Profile Picture Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Profile Picture</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Profile Picture
+            </label>
             <input
               type="file"
               name="profilePicture"

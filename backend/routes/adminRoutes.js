@@ -165,7 +165,7 @@ router.delete("/broadcast/:id", authMiddleware, adminOnly, async (req, res) => {
 
 
 
-// ================= BED REQUEST MANAGEMENT (NAYA SECTION) =================
+// ================= BED REQUEST MANAGEMENT (Request send by doctor to admin for patients)  =================
 
 // ✅  Get all bed requests
 router.get("/bed-requests", authMiddleware, adminOnly, async (req, res) => {
@@ -207,9 +207,29 @@ router.put("/bed-requests/:id", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
+// ✅ Discharge a patient from a bed
+router.put("/discharge-patient/:requestId", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const request = await BedRequest.findById(req.params.requestId);
+    if (!request || request.status !== "Accepted") {
+      return res.status(404).json({ msg: "Accepted bed request not found." });
+    }
+
+    // Step 1: Make the bed available again
+    await Bed.updateOne({ ward: request.ward }, { $inc: { available: 1 } });
+
+    // Step 2: Delete the bed request from the system
+    await BedRequest.findByIdAndDelete(req.params.requestId);
+
+    res.json({ msg: "Patient discharged successfully and bed is now available." });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 
-// ================= BEDS MANAGEMENT =================
+
+// ================= BEDS MANAGEMENT (Data showing in admin portal) =================
 router.post("/beds", authMiddleware, adminOnly, async (req, res) => {
   try {
     const { ward, total, available } = req.body;
@@ -252,24 +272,53 @@ router.delete("/beds/:id", authMiddleware, adminOnly, async (req, res) => {
 
 // ================= MEDICINE MANAGEMENT =================
 
-router.post("/medicine", authMiddleware, adminOnly, async (req, res) => {
-  try {
-    const { name, stock } = req.body;
-    const medicine = new Medicine({ name, stock });
-    await medicine.save();
-    res.json({ msg: "Medicine added", medicine });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+// ✅ GET all medicines (for admin panel)
+router.get("/medicines", authMiddleware, adminOnly, async (req, res) => {
+    try {
+        const medicines = await Medicine.find({}).sort({ name: 1 }); // Sort alphabetically
+        res.json(medicines);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
+// ✅ POST a new medicine
+router.post("/medicine", authMiddleware, adminOnly, async (req, res) => {
+    try {
+        const { name, stock, category, supplier } = req.body;
+        const newMedicine = new Medicine({ name, stock, category, supplier });
+        await newMedicine.save();
+        res.status(201).json({ msg: "Medicine added successfully", medicine: newMedicine });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ✅ PUT (update) an existing medicine's stock
 router.put("/medicine/:id", authMiddleware, adminOnly, async (req, res) => {
-  try {
-    const medicine = await Medicine.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json({ msg: "Medicine updated", medicine });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+    try {
+        const { name, stock, category, supplier } = req.body;
+        const updatedMedicine = await Medicine.findByIdAndUpdate(
+            req.params.id,
+            { name, stock, category, supplier },
+            { new: true }
+        );
+        if (!updatedMedicine) return res.status(404).json({ msg: "Medicine not found." });
+        res.json({ msg: "Medicine updated successfully", medicine: updatedMedicine });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ✅ DELETE a medicine
+router.delete("/medicine/:id", authMiddleware, adminOnly, async (req, res) => {
+    try {
+        const deletedMedicine = await Medicine.findByIdAndDelete(req.params.id);
+        if (!deletedMedicine) return res.status(404).json({ msg: "Medicine not found." });
+        res.json({ msg: "Medicine removed successfully." });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 export default router;

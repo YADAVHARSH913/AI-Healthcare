@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
   experience: { type: Number },
   hospital: { type: String },
   firstLogin: { type: Boolean, default: true },
-   profilePicture: { type: String },
+  profilePicture: { type: String, default: "" },
   // ✅ Naya Status Field (Sirf Doctor ke liye)
   status: {
     type: String,

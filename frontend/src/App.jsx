@@ -41,7 +41,7 @@ function App() {
       <Navbar />
 
       {/* Notifications for login & other all pop up's */}
-      <ToastContainer position="top-right" autoClose={3000} /> 
+      <ToastContainer position="top-right" autoClose={1000} /> 
 
       <Routes>
         {/* --- Public Routes --- */}

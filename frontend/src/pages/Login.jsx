@@ -71,7 +71,7 @@ function Login() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Email Address</label>
-                <input type="email" name="email" placeholder="you@example.com" onChange={handleChange} className="mt-1 w-full border-gray-300 rounded-md shadow-sm" required />
+                <input type="email" name="email" autoComplete="off"  placeholder="firstname@medicare.com" onChange={handleChange} className="mt-1 w-full border-gray-300 rounded-md shadow-sm" required />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Password</label>

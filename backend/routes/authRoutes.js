@@ -69,6 +69,7 @@ router.post("/register", async (req, res) => {
         email: user.email,
         role: user.role,
         firstLogin: user.firstLogin,
+        profilePicture: user.profilePicture || ""
       },
     });
   } catch (err) {
@@ -98,24 +99,22 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1d" }
     );
 
+    // ✅ YEH HAI FIX: Ab hum poora user object bhejenge (bina password ke)
+    // This converts the Mongoose document to a plain object and deletes the password.
+    // Now it will include ALL fields like 'profilePicture', 'status', etc.
+    const userToReturn = user.toObject();
+    delete userToReturn.password;
+
     res.json({
       message: "Login successful",
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        firstLogin: user.firstLogin,        // ✅ doctor/patient dono ke liye
-        specialization: user.specialization,
-        experience: user.experience,
-        hospital: user.hospital,
-      },
+      user: userToReturn // Sending the complete user object
     });
   } catch (err) {
     res.status(500).json({ message: "Server error: " + err.message });
   }
 });
+
 
 
 // ================= DOCTOR ONLY LOGIN (optional, same as /login but stricter) =================
@@ -175,8 +174,8 @@ router.post("/forgot-password", async (req, res) => {
     user.firstLogin = true; // Taaki agle login par password change karna pade
     await user.save();
 
-    res.json({ 
-      message: "Password has been reset to '123456'. Please login to set a new password." 
+    res.json({
+      message: "Password has been reset to '123456'. Please login to set a new password."
     });
 
   } catch (err) {

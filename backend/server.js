@@ -17,6 +17,7 @@ import publicRoutes from "./routes/publicRoutes.js";
 import bedRoutes from "./routes/bedRoutes.js";
 import adminAuth from "./routes/adminAuth.js";
 import adminDoctor from "./routes/adminDoctor.js";
+import aiRoutes from "./routes/aiRoutes.js"; 
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use(express.json());
 app.use('/uploads', express.static('uploads')); 
 app.use("/api", publicRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/uploads", express.static("uploads"));
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/doctor", doctorRoutes);
 app.use("/api/admin", adminRoutes);
@@ -38,6 +40,7 @@ app.use("/api/patient", patientRoutes);
 app.use("/api/beds", bedRoutes);
 app.use("/api/admin/auth", adminAuth);     
 app.use("/api/admin/manage", adminDoctor);
+app.use("/api/ai", aiRoutes);
 
 
 // ✅ Step 4: Test route
